@@ -20,7 +20,7 @@ const config: ExpoConfig = {
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
-  scheme: env.scheme,
+  scheme: [env.scheme, 'abrircajon'],
   userInterfaceStyle: 'automatic',
   newArchEnabled: true,
   ios: {
@@ -42,12 +42,13 @@ const config: ExpoConfig = {
       {
         action: 'VIEW',
         autoVerify: true,
-        data: [
-          {
-            scheme: env.scheme,
-            host: '*',
-          },
-        ],
+        data: [{ scheme: env.scheme, host: '*' }],
+        category: ['BROWSABLE', 'DEFAULT'],
+      },
+      {
+        action: 'VIEW',
+        autoVerify: false,
+        data: [{ scheme: 'abrircajon', host: 'open' }],
         category: ['BROWSABLE', 'DEFAULT'],
       },
     ],

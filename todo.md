@@ -23,3 +23,9 @@
 - [x] Simplificar la navegación visible en la versión web para que el panel remoto se perciba como una herramienta dedicada.
 - [x] Corregir el error "fetch failed" al solicitar la apertura desde la app web.
 - [x] Revisar y adaptar los cambios compatibles del ZIP de la otra tarea para estabilizar la comunicación entre la web y el servidor.
+- [x] Revisar e integrar los cambios requeridos del archivo `cajon-deeplink-changes.zip` para adaptar el flujo actual de apertura remota.
+- [x] Sustituir `app.config.ts` por la versión incluida en `cajon-deeplink-changes.zip`.
+- [x] Sustituir `app/_layout.tsx` por la versión incluida en `cajon-deeplink-changes.zip`.
+- [x] Crear `hooks/use-deep-link-drawer.ts` con el contenido incluido en `cajon-deeplink-changes.zip`.
+- [x] Validar que el proyecto queda listo para recompilar el APK Android con soporte de deep link `abrircajon://open`.
+- [x] Corregir la incompatibilidad del nuevo `app/_layout.tsx` con el hook de polling existente, para evitar el error `useDrawerPolling is not a function` al arrancar.
