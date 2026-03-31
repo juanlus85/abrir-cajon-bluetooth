@@ -37,3 +37,6 @@
 - [x] Restaurar el flujo principal de apertura por servidor + polling en segundo plano para que la web no abra visiblemente la app puente.
 - [x] Mantener el botón físico local dentro de la app Android para pruebas y apertura manual.
 - [x] Dejar el deep link solo como mecanismo secundario o de compatibilidad, no como vía principal de apertura desde la web.
+- [x] Añadir la ruta `app/open.tsx` para que Expo Router reconozca `abrircajon://open` sin error de navegación.
+- [x] Registrar la pantalla `open` en `app/_layout.tsx` con presentación transparente y sin animación.
+- [x] Validar que el deep link corregido siga siendo secundario y que la web continúe usando como flujo principal el servidor con polling.

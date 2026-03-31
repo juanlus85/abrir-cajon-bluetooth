@@ -3,12 +3,15 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('flujo remoto del cajón', () => {
-  it('ya no monta el manejador de deep link en el layout raíz', () => {
+  it('ya no monta el manejador de deep link en el layout raíz y registra la ruta transparente open', () => {
     const source = readFileSync(join(process.cwd(), 'app/_layout.tsx'), 'utf8');
 
     expect(source).not.toContain('useDeepLinkDrawer');
     expect(source).not.toContain('DeepLinkDrawerProvider');
     expect(source).toContain('DrawerPollingBridgeProvider');
+    expect(source).toContain('name="open"');
+    expect(source).toContain('presentation: "transparentModal"');
+    expect(source).toContain('animation: "none"');
   });
 
   it('mantiene en la pantalla principal el envío remoto por API y el botón físico local', () => {
@@ -18,5 +21,13 @@ describe('flujo remoto del cajón', () => {
     expect(source).toContain("onPress={isWeb ? handleQueueDrawer : handleOpenLocalDrawer}");
     expect(source).toContain("Solicitar apertura remota");
     expect(source).toContain("Abrir cajón desde la tablet");
+  });
+
+  it('incluye una pantalla open que ejecuta la apertura secundaria y vuelve al inicio', () => {
+    const source = readFileSync(join(process.cwd(), 'app/open.tsx'), 'utf8');
+
+    expect(source).toContain('openCashDrawer');
+    expect(source).toContain("router.replace('/(tabs)')");
+    expect(source).toContain("backgroundColor: 'transparent'");
   });
 });
