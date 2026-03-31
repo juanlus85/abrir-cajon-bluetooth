@@ -10,3 +10,4 @@
 - [x] Adaptar colores, textos e interfaz al diseño definido para uso en mostrador.
 - [x] Generar icono propio de la aplicación y actualizar branding en `app.config.ts`.
 - [x] Validar compilación, pruebas básicas y documentación de instalación y uso.
+- [x] Corregir el error de inicio cuando la app se abre sin impresora seleccionada o en un entorno donde Bluetooth no devuelve dispositivos.

@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScreenContainer } from '@/components/screen-container';
 import { haptic } from '@/lib/haptics';
+import { safeStorage } from '@/lib/storage';
 import {
   DEFAULT_DRAWER_COMMAND,
   DEFAULT_TIMEOUT,
@@ -84,25 +84,60 @@ export default function HomeScreen() {
   }, [status.tone]);
 
   const loadState = useCallback(async () => {
-    try {
-      const [storedPrinter, storedSettings, availability, lastStatusRaw] = await Promise.all([
-        getStoredPrinter(),
-        getStoredSettings(),
-        getBluetoothAvailabilitySummary(),
-        AsyncStorage.getItem(LAST_STATUS_KEY),
-      ]);
-      setPrinter(storedPrinter);
-      setSettings(storedSettings);
-      setBluetoothSummary(availability);
+    let nextPrinter: PrinterDevice | null = null;
+    let nextSettings: DrawerSettings = {
+      commandHex: DEFAULT_DRAWER_COMMAND,
+      timeoutMs: DEFAULT_TIMEOUT,
+    };
+    let nextBluetoothSummary = 'Bluetooth no disponible todavía.';
+    let nextStatus = initialState;
 
-      if (lastStatusRaw) {
-        setStatus(JSON.parse(lastStatusRaw) as ActionState);
+    try {
+      try {
+        nextPrinter = await getStoredPrinter();
+      } catch {
+        nextPrinter = null;
       }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'No se pudo cargar la configuración local.';
-      setStatus({ tone: 'warning', title: 'Revisión necesaria', detail: message });
+
+      try {
+        nextSettings = await getStoredSettings();
+      } catch {
+        nextSettings = {
+          commandHex: DEFAULT_DRAWER_COMMAND,
+          timeoutMs: DEFAULT_TIMEOUT,
+        };
+      }
+
+      try {
+        nextBluetoothSummary = await getBluetoothAvailabilitySummary();
+      } catch (error) {
+        nextBluetoothSummary =
+          error instanceof Error
+            ? error.message
+            : 'No se pudo comprobar el estado de Bluetooth en este entorno.';
+      }
+
+      try {
+        const lastStatusRaw = await safeStorage.getItem(LAST_STATUS_KEY);
+        if (lastStatusRaw) {
+          const parsedStatus = JSON.parse(lastStatusRaw) as Partial<ActionState>;
+          if (
+            parsedStatus &&
+            typeof parsedStatus.title === 'string' &&
+            typeof parsedStatus.detail === 'string' &&
+            ['neutral', 'success', 'error', 'warning'].includes(parsedStatus.tone ?? '')
+          ) {
+            nextStatus = parsedStatus as ActionState;
+          }
+        }
+      } catch {
+        nextStatus = initialState;
+      }
     } finally {
+      setPrinter(nextPrinter);
+      setSettings(nextSettings);
+      setBluetoothSummary(nextBluetoothSummary);
+      setStatus(nextStatus);
       setLoading(false);
       setRefreshing(false);
     }
@@ -121,7 +156,7 @@ export default function HomeScreen() {
 
   const persistStatus = useCallback(async (nextStatus: ActionState) => {
     setStatus(nextStatus);
-    await AsyncStorage.setItem(LAST_STATUS_KEY, JSON.stringify(nextStatus));
+    await safeStorage.setItem(LAST_STATUS_KEY, JSON.stringify(nextStatus));
   }, []);
 
   const handleOpenDrawer = useCallback(async () => {
@@ -165,7 +200,15 @@ export default function HomeScreen() {
       await persistStatus(nextStatus);
     } finally {
       setOpening(false);
-      setBluetoothSummary(await getBluetoothAvailabilitySummary());
+      try {
+        setBluetoothSummary(await getBluetoothAvailabilitySummary());
+      } catch (error) {
+        setBluetoothSummary(
+          error instanceof Error
+            ? error.message
+            : 'No se pudo actualizar el estado de Bluetooth en este entorno.',
+        );
+      }
     }
   }, [persistStatus, printer, settings.commandHex, settings.timeoutMs]);
 
@@ -196,7 +239,15 @@ export default function HomeScreen() {
       await persistStatus({ tone: 'warning', title: 'No fue posible configurar', detail: message });
     } finally {
       setOpening(false);
-      setBluetoothSummary(await getBluetoothAvailabilitySummary());
+      try {
+        setBluetoothSummary(await getBluetoothAvailabilitySummary());
+      } catch (error) {
+        setBluetoothSummary(
+          error instanceof Error
+            ? error.message
+            : 'No se pudo actualizar el estado de Bluetooth en este entorno.',
+        );
+      }
     }
   }, [persistStatus]);
 
