@@ -9,7 +9,8 @@ import { useColors } from '@/hooks/use-colors';
 export default function TabLayout() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const bottomPadding = Platform.OS === 'web' ? 12 : Math.max(insets.bottom, 8);
+  const isWeb = Platform.OS === 'web';
+  const bottomPadding = isWeb ? 12 : Math.max(insets.bottom, 8);
   const tabBarHeight = 56 + bottomPadding;
 
   return (
@@ -18,14 +19,18 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.tint,
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarStyle: {
-          paddingTop: 8,
-          paddingBottom: bottomPadding,
-          height: tabBarHeight,
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
-          borderTopWidth: 0.5,
-        },
+        tabBarStyle: isWeb
+          ? {
+              display: 'none',
+            }
+          : {
+              paddingTop: 8,
+              paddingBottom: bottomPadding,
+              height: tabBarHeight,
+              backgroundColor: colors.background,
+              borderTopColor: colors.border,
+              borderTopWidth: 0.5,
+            },
       }}
     >
       <Tabs.Screen
@@ -38,6 +43,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
+          href: isWeb ? null : undefined,
           title: 'Ajustes',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
         }}
@@ -45,6 +51,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="diagnostics"
         options={{
+          href: isWeb ? null : undefined,
           title: 'Diagnóstico',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="waveform.path.ecg" color={color} />,
         }}

@@ -1,4 +1,3 @@
-import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -6,6 +5,28 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
+
+type DrawerPendingRequest = {
+  id: string;
+  timestamp: number;
+};
+
+let drawerPendingRequest: DrawerPendingRequest | null = null;
+
+export function queueDrawerOpen(): string {
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  drawerPendingRequest = {
+    id,
+    timestamp: Date.now(),
+  };
+  return id;
+}
+
+export function consumeDrawerRequest(): DrawerPendingRequest | null {
+  const pending = drawerPendingRequest;
+  drawerPendingRequest = null;
+  return pending;
+}
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -30,7 +51,6 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  // Enable CORS for all routes - reflect the request origin to support credentials
   app.use((req, res, next) => {
     const origin = req.headers.origin;
     if (origin) {
@@ -43,7 +63,6 @@ async function startServer() {
     );
     res.header("Access-Control-Allow-Credentials", "true");
 
-    // Handle preflight requests
     if (req.method === "OPTIONS") {
       res.sendStatus(200);
       return;
@@ -58,6 +77,17 @@ async function startServer() {
 
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: Date.now() });
+  });
+
+  app.post("/api/open-drawer", (_req, res) => {
+    const id = queueDrawerOpen();
+    console.log(`[drawer] Open request queued: ${id}`);
+    res.json({ ok: true, id, timestamp: Date.now() });
+  });
+
+  app.get("/api/drawer-pending", (_req, res) => {
+    const pending = consumeDrawerRequest();
+    res.json({ pending });
   });
 
   app.use(

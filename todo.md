@@ -11,3 +11,13 @@
 - [x] Generar icono propio de la aplicación y actualizar branding en `app.config.ts`.
 - [x] Validar compilación, pruebas básicas y documentación de instalación y uso.
 - [x] Corregir el error de inicio cuando la app se abre sin impresora seleccionada o en un entorno donde Bluetooth no devuelve dispositivos.
+- [x] Sustituir la miniaplicación actual por una app web para abrir el cajón a través de la impresora Bluetooth, revisando e integrando los cambios del archivo `cajon-drawer-changes.zip` cuando sean compatibles.
+- [x] Implementar un endpoint HTTP en el servidor para registrar solicitudes de apertura del cajón desde la interfaz web.
+- [x] Implementar una cola o estado pendiente en memoria para que la app Android puente consuma la solicitud de apertura.
+- [x] Añadir en la interfaz una pantalla o acción web con botón "Abrir cajón" conectada al endpoint del servidor.
+- [x] Integrar el flujo de polling en la app Android puente para consultar solicitudes pendientes y abrir el cajón automáticamente.
+- [x] Mostrar en la interfaz el estado de versión y la hora de despliegue de forma discreta en ajustes.
+- [x] Validar el flujo completo web -> servidor -> tablet Android -> impresora Bluetooth con pruebas y revisión final.
+- [x] Refinar la interfaz web de apertura remota con mejor jerarquía visual, textos más claros, paneles más legibles y diseño responsive para uso real en mostrador.
+- [x] Ajustar la interfaz web para no mostrar el estado de impresora local de la tablet en el panel web y evitar confusión operativa.
+- [x] Simplificar la navegación visible en la versión web para que el panel remoto se perciba como una herramienta dedicada.
