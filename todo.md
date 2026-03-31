@@ -21,3 +21,5 @@
 - [x] Refinar la interfaz web de apertura remota con mejor jerarquía visual, textos más claros, paneles más legibles y diseño responsive para uso real en mostrador.
 - [x] Ajustar la interfaz web para no mostrar el estado de impresora local de la tablet en el panel web y evitar confusión operativa.
 - [x] Simplificar la navegación visible en la versión web para que el panel remoto se perciba como una herramienta dedicada.
+- [x] Corregir el error "fetch failed" al solicitar la apertura desde la app web.
+- [x] Revisar y adaptar los cambios compatibles del ZIP de la otra tarea para estabilizar la comunicación entre la web y el servidor.

@@ -73,6 +73,18 @@ describe('getApiBaseUrl', () => {
     );
   });
 
+  it('usa el mismo origen en el dominio publicado cuando la API cuelga de /api', async () => {
+    const { getApiBaseUrl } = await loadOAuthModule({
+      os: 'web',
+      windowLocation: {
+        protocol: 'https:',
+        hostname: 'abrircajon-dwbz7y9o.manus.space',
+      },
+    });
+
+    expect(getApiBaseUrl()).toBe('https://abrircajon-dwbz7y9o.manus.space');
+  });
+
   it('devuelve una cadena vacía cuando no puede derivar la URL del servidor', async () => {
     const { getApiBaseUrl } = await loadOAuthModule({
       os: 'android',

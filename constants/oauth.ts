@@ -25,27 +25,30 @@ export const OWNER_NAME = env.ownerName;
 export const API_BASE_URL = env.apiBaseUrl;
 
 /**
- * Get the API base URL, deriving from current hostname if not set.
- * Metro runs on 8081, API server runs on 3000.
- * URL pattern: https://PORT-sandboxid.region.domain
+ * Get the API base URL, deriving from the runtime environment when no explicit
+ * API base URL is configured.
+ *
+ * - Preview web: translate 8081-* hosts to 3000-* for the Express server.
+ * - Published web: use the same origin, because the API is exposed on /api.
+ * - Native: return empty when no explicit API base URL is configured.
  */
 export function getApiBaseUrl(): string {
-  // If API_BASE_URL is set, use it
   if (API_BASE_URL) {
     return API_BASE_URL.replace(/\/$/, "");
   }
 
-  // On web, derive from current hostname by replacing port 8081 with 3000
   if (ReactNative.Platform.OS === "web" && typeof window !== "undefined" && window.location) {
-    const { protocol, hostname } = window.location;
-    // Pattern: 8081-sandboxid.region.domain -> 3000-sandboxid.region.domain
+    const { origin, protocol, hostname } = window.location;
+    const normalizedOrigin = typeof origin === "string" && origin.length > 0 ? origin : `${protocol}//${hostname}`;
     const apiHostname = hostname.replace(/^8081-/, "3000-");
+
     if (apiHostname !== hostname) {
       return `${protocol}//${apiHostname}`;
     }
+
+    return normalizedOrigin.replace(/\/$/, "");
   }
 
-  // Fallback to empty (will use relative URL)
   return "";
 }
 
