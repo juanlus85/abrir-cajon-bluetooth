@@ -11,21 +11,29 @@ type DrawerPendingRequest = {
   timestamp: number;
 };
 
-let drawerPendingRequest: DrawerPendingRequest | null = null;
+const drawerPendingQueue: DrawerPendingRequest[] = [];
 
 export function queueDrawerOpen(): string {
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  drawerPendingRequest = {
+  drawerPendingQueue.push({
     id,
     timestamp: Date.now(),
-  };
+  });
   return id;
 }
 
-export function consumeDrawerRequest(): DrawerPendingRequest | null {
-  const pending = drawerPendingRequest;
-  drawerPendingRequest = null;
-  return pending;
+export function getPendingDrawerRequest(): DrawerPendingRequest | null {
+  return drawerPendingQueue[0] ?? null;
+}
+
+export function acknowledgeDrawerRequest(id: string): boolean {
+  const index = drawerPendingQueue.findIndex((request) => request.id === id);
+  if (index === -1) {
+    return false;
+  }
+
+  drawerPendingQueue.splice(index, 1);
+  return true;
 }
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -82,12 +90,24 @@ async function startServer() {
   app.post("/api/open-drawer", (_req, res) => {
     const id = queueDrawerOpen();
     console.log(`[drawer] Open request queued: ${id}`);
-    res.json({ ok: true, id, timestamp: Date.now() });
+    res.json({ ok: true, id, timestamp: Date.now(), queueLength: drawerPendingQueue.length });
   });
 
   app.get("/api/drawer-pending", (_req, res) => {
-    const pending = consumeDrawerRequest();
-    res.json({ pending });
+    const pending = getPendingDrawerRequest();
+    res.json({ pending, queueLength: drawerPendingQueue.length });
+  });
+
+  app.post("/api/drawer-ack", (req, res) => {
+    const id = typeof req.body?.id === "string" ? req.body.id : "";
+
+    if (!id) {
+      res.status(400).json({ ok: false, error: "Missing request id" });
+      return;
+    }
+
+    const removed = acknowledgeDrawerRequest(id);
+    res.json({ ok: removed, id, queueLength: drawerPendingQueue.length });
   });
 
   app.use(

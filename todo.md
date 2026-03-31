@@ -43,3 +43,7 @@
 - [x] Ajustar el comportamiento final de la APK al abrir el cajón desde la web para que no permanezca visible en primer plano y coincida exactamente con la experiencia deseada por el usuario.
 - [x] Ajustar la ruta de apertura desde la web para que, si Android muestra la APK al ejecutar `abrircajon://open`, esta solo aparezca un instante, abra el cajón y desaparezca rápidamente.
 - [x] Priorizar que la APK no llegue a verse al abrir el cajón desde la web y, si Android obliga a mostrarla, cerrarla automáticamente en cuanto termine la apertura.
+- [x] Corregir el bloqueo que impide una segunda apertura del cajón desde la web después del cierre automático de la APK.
+- [x] Ajustar el ciclo de vida Android para que la app quede lista para nuevas aperturas consecutivas sin cierre manual.
+- [x] Reducir la latencia del flujo de apertura automática desde la web en la medida que permita la arquitectura actual.
+- [x] Optimizar el flujo de apertura remota para reducir al máximo el tiempo entre pulsar el botón web y la apertura física del cajón, sin volver a bloquear las aperturas consecutivas.

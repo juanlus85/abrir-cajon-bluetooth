@@ -1,4 +1,11 @@
-import { createElement, PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  createElement,
+  type PropsWithChildren,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Platform } from "react-native";
 
 import { getApiBaseUrl } from "@/constants/oauth";
@@ -16,14 +23,30 @@ type DrawerBridgeStatus = {
   lastEvent: string;
 };
 
-const POLLING_INTERVAL_MS = 2000;
-const MAX_PENDING_AGE_MS = 10000;
+type DrawerPendingPayload = {
+  pending: { id: string; timestamp: number } | null;
+};
+
+const POLLING_INTERVAL_MS = 500;
+const MAX_PENDING_AGE_MS = 15000;
 
 const DrawerPollingContext = createContext<DrawerBridgeStatus>({
   supported: false,
   active: false,
   lastEvent: "El puente todavía no está inicializado.",
 });
+
+async function acknowledgeDrawerRequest(apiBase: string, id: string) {
+  try {
+    await fetch(`${apiBase}/api/drawer-ack`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+  } catch {
+    // Si el ACK falla, el servidor podrá reexponer la solicitud.
+  }
+}
 
 export function DrawerPollingProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<DrawerBridgeStatus>({
@@ -56,7 +79,7 @@ export function DrawerPollingProvider({ children }: PropsWithChildren) {
     }
 
     let isMounted = true;
-    let opening = false;
+    let inFlight = false;
 
     const safeSetStatus = (nextStatus: DrawerBridgeStatus) => {
       if (isMounted) {
@@ -71,9 +94,12 @@ export function DrawerPollingProvider({ children }: PropsWithChildren) {
     });
 
     const poll = async () => {
-      if (opening) {
+      if (inFlight) {
         return;
       }
+
+      inFlight = true;
+      let pendingId: string | null = null;
 
       try {
         const response = await fetch(`${apiBase}/api/drawer-pending`, {
@@ -85,13 +111,13 @@ export function DrawerPollingProvider({ children }: PropsWithChildren) {
           return;
         }
 
-        const data = (await response.json()) as {
-          pending: { id: string; timestamp: number } | null;
-        };
+        const data = (await response.json()) as DrawerPendingPayload;
 
         if (!data.pending) {
           return;
         }
+
+        pendingId = data.pending.id;
 
         if (Date.now() - data.pending.timestamp > MAX_PENDING_AGE_MS) {
           safeSetStatus({
@@ -102,7 +128,6 @@ export function DrawerPollingProvider({ children }: PropsWithChildren) {
           return;
         }
 
-        opening = true;
         safeSetStatus({
           supported: true,
           active: true,
@@ -145,8 +170,6 @@ export function DrawerPollingProvider({ children }: PropsWithChildren) {
                 ? `Error al abrir el cajón: ${error.message}`
                 : "Error desconocido al abrir el cajón desde la solicitud remota.",
           });
-        } finally {
-          opening = false;
         }
       } catch {
         safeSetStatus({
@@ -154,6 +177,11 @@ export function DrawerPollingProvider({ children }: PropsWithChildren) {
           active: true,
           lastEvent: "No se pudo consultar el servidor en este momento. Reintentando automáticamente.",
         });
+      } finally {
+        if (pendingId) {
+          await acknowledgeDrawerRequest(apiBase, pendingId);
+        }
+        inFlight = false;
       }
     };
 
