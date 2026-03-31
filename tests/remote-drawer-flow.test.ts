@@ -23,14 +23,29 @@ describe('flujo remoto del cajón', () => {
     expect(source).toContain('Abrir cajón desde la tablet');
   });
 
-  it('incluye una pantalla open que ejecuta la apertura secundaria y vuelve al flujo principal sin matar la app', () => {
+  it('incluye una pantalla open que ejecuta la apertura secundaria y oculta visualmente la app sin matar el proceso', () => {
     const source = readFileSync(join(process.cwd(), 'app/open.tsx'), 'utf8');
 
     expect(source).toContain('openCashDrawer');
     expect(source).not.toContain('BackHandler.exitApp()');
     expect(source).toContain("router.replace('/(tabs)')");
-    expect(source).toContain("Platform.OS === 'android'");
+    expect(source).toContain("Platform.OS !== 'android'");
+    expect(source).toContain('MyModule.moveTaskToBackAsync()');
+    expect(source).toContain('ANDROID_HIDE_DELAY_MS = 60');
     expect(source).toContain("backgroundColor: 'transparent'");
+  });
+
+  it('expone un módulo nativo local para mandar la tarea Android a segundo plano sin matar el proceso', () => {
+    const nativeSource = readFileSync(
+      join(process.cwd(), 'modules/my-module/android/src/main/java/expo/modules/mymodule/MyModule.kt'),
+      'utf8',
+    );
+    const typescriptSource = readFileSync(join(process.cwd(), 'modules/my-module/src/MyModule.ts'), 'utf8');
+
+    expect(nativeSource).toContain('Name("MyModule")');
+    expect(nativeSource).toContain('AsyncFunction("moveTaskToBackAsync")');
+    expect(nativeSource).toContain('activity.moveTaskToBack(true)');
+    expect(typescriptSource).toContain('moveTaskToBackAsync(): Promise<boolean>;');
   });
 
   it('usa polling más rápido y confirma al servidor cada solicitud procesada', () => {

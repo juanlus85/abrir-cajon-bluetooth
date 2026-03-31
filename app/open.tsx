@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Platform, View } from 'react-native';
 import { router } from 'expo-router';
 
+import MyModule from '@/modules/my-module';
 import {
   DEFAULT_DRAWER_COMMAND,
   DEFAULT_TIMEOUT,
@@ -10,14 +11,30 @@ import {
   openCashDrawer,
 } from '@/lib/bluetooth';
 
+const ANDROID_HIDE_DELAY_MS = 60;
+
 export default function OpenDrawerScreen() {
   useEffect(() => {
     let cancelled = false;
 
-    function leaveScreen() {
+    async function returnToMainFlowAndHideApp() {
       if (cancelled) return;
 
       router.replace('/(tabs)');
+
+      if (Platform.OS !== 'android') {
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, ANDROID_HIDE_DELAY_MS));
+
+      if (cancelled) return;
+
+      try {
+        await MyModule.moveTaskToBackAsync();
+      } catch (error) {
+        console.warn('[open-screen] No se pudo enviar la app a segundo plano:', error);
+      }
     }
 
     async function handleOpen() {
@@ -43,8 +60,7 @@ export default function OpenDrawerScreen() {
       } catch (error) {
         console.error('[open-screen] Error al abrir el cajón:', error);
       } finally {
-        const closeDelayMs = Platform.OS === 'android' ? 120 : 0;
-        setTimeout(leaveScreen, closeDelayMs);
+        void returnToMainFlowAndHideApp();
       }
     }
 

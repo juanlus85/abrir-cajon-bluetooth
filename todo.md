@@ -31,9 +31,9 @@
 - [x] Corregir la incompatibilidad del nuevo `app/_layout.tsx` con el hook de polling existente, para evitar el error `useDrawerPolling is not a function` al arrancar.
 - [x] Ajustar el flujo de apertura para que, al pulsar "Abrir cajón" desde la web, la tablet ejecute la acción con la mínima fricción posible y sin mostrar innecesariamente la app puente al usuario.
 - [x] Revertir el uso principal de deep link y restaurar la apertura del cajón en segundo plano desde la tablet, para que la orden enviada desde la web no abra visiblemente la app puente.
-- [ ] Adaptar la apertura del cajón para que el deep link en Android use una Activity transparente que ejecute la apertura y se cierre casi al instante, minimizando la aparición visible de la app puente.
+- [x] Adaptar la apertura del cajón para que el deep link en Android use una Activity transparente que ejecute la apertura y se cierre casi al instante, minimizando la aparición visible de la app puente.
 - [x] Mantener el botón físico de apertura local dentro de la app Android.
-- [ ] Añadir un flujo específico para aperturas lanzadas desde la web que minimice la aparición visual de la app puente mediante una integración Android casi invisible.
+- [x] Añadir un flujo específico para aperturas lanzadas desde la web que minimice la aparición visual de la app puente mediante una integración Android casi invisible.
 - [x] Restaurar el flujo principal de apertura por servidor + polling en segundo plano para que la web no abra visiblemente la app puente.
 - [x] Mantener el botón físico local dentro de la app Android para pruebas y apertura manual.
 - [x] Dejar el deep link solo como mecanismo secundario o de compatibilidad, no como vía principal de apertura desde la web.
@@ -47,3 +47,4 @@
 - [x] Ajustar el ciclo de vida Android para que la app quede lista para nuevas aperturas consecutivas sin cierre manual.
 - [x] Reducir la latencia del flujo de apertura automática desde la web en la medida que permita la arquitectura actual.
 - [x] Optimizar el flujo de apertura remota para reducir al máximo el tiempo entre pulsar el botón web y la apertura física del cajón, sin volver a bloquear las aperturas consecutivas.
+- [x] Hacer que la APK desaparezca visualmente justo después de abrir el cajón desde la web, sin matar el puente Android ni volver a bloquear aperturas consecutivas.
