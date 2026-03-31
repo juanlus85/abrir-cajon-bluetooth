@@ -40,3 +40,6 @@
 - [x] Añadir la ruta `app/open.tsx` para que Expo Router reconozca `abrircajon://open` sin error de navegación.
 - [x] Registrar la pantalla `open` en `app/_layout.tsx` con presentación transparente y sin animación.
 - [x] Validar que el deep link corregido siga siendo secundario y que la web continúe usando como flujo principal el servidor con polling.
+- [x] Ajustar el comportamiento final de la APK al abrir el cajón desde la web para que no permanezca visible en primer plano y coincida exactamente con la experiencia deseada por el usuario.
+- [x] Ajustar la ruta de apertura desde la web para que, si Android muestra la APK al ejecutar `abrircajon://open`, esta solo aparezca un instante, abra el cajón y desaparezca rápidamente.
+- [x] Priorizar que la APK no llegue a verse al abrir el cajón desde la web y, si Android obliga a mostrarla, cerrarla automáticamente en cuanto termine la apertura.

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { BackHandler, Platform, View } from 'react-native';
 import { router } from 'expo-router';
 
 import {
@@ -13,6 +13,19 @@ import {
 export default function OpenDrawerScreen() {
   useEffect(() => {
     let cancelled = false;
+
+    function leaveScreen() {
+      if (cancelled) return;
+
+      if (Platform.OS === 'android') {
+        setTimeout(() => {
+          BackHandler.exitApp();
+        }, 0);
+        return;
+      }
+
+      router.replace('/(tabs)');
+    }
 
     async function handleOpen() {
       try {
@@ -37,9 +50,7 @@ export default function OpenDrawerScreen() {
       } catch (error) {
         console.error('[open-screen] Error al abrir el cajón:', error);
       } finally {
-        if (!cancelled) {
-          router.replace('/(tabs)');
-        }
+        leaveScreen();
       }
     }
 

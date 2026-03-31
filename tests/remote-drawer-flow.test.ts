@@ -23,11 +23,12 @@ describe('flujo remoto del cajón', () => {
     expect(source).toContain("Abrir cajón desde la tablet");
   });
 
-  it('incluye una pantalla open que ejecuta la apertura secundaria y vuelve al inicio', () => {
+  it('incluye una pantalla open que ejecuta la apertura secundaria y cierra la APK en Android', () => {
     const source = readFileSync(join(process.cwd(), 'app/open.tsx'), 'utf8');
 
     expect(source).toContain('openCashDrawer');
-    expect(source).toContain("router.replace('/(tabs)')");
+    expect(source).toContain('BackHandler.exitApp()');
+    expect(source).toContain("Platform.OS === 'android'");
     expect(source).toContain("backgroundColor: 'transparent'");
   });
 });
