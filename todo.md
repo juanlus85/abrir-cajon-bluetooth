@@ -49,3 +49,4 @@
 - [x] Optimizar el flujo de apertura remota para reducir al máximo el tiempo entre pulsar el botón web y la apertura física del cajón, sin volver a bloquear las aperturas consecutivas.
 - [x] Hacer que la APK desaparezca visualmente justo después de abrir el cajón desde la web, sin matar el puente Android ni volver a bloquear aperturas consecutivas.
 - [x] Diagnosticar y corregir el error "build failed" que aparece durante la compilación del APK, antes de llegar a instalar la aplicación en el dispositivo.
+- [x] Ajustar `modules/my-module/android/src/main/java/expo/modules/mymodule/MyModule.kt` para usar una firma Kotlin compatible con Expo Modules, eliminando la excepción incompatible y el uso inseguro de `Activity?` que bloqueaban la compilación del APK.
